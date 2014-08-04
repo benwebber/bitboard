@@ -4,7 +4,7 @@ package board64
 
 import "fmt"
 
-// A BitBoard represents game state.
+// A Bitboard represents game state.
 //
 // We use a little-endian mapping of bits to rank-and-file coordinates. For
 // an 8x8 board, this mapping looks like:
@@ -20,22 +20,22 @@ import "fmt"
 //     -------------------------
 //       a  b  c  d  e  f  g  h
 //
-// Construct a new BitBoard using NewBitBoard(). There are also convenience
+// Construct a new Bitboard using NewBitboard. There are also convenience
 // functions for constructing bitboards for specific games.
-type BitBoard struct {
-	Masks   []uint64 // Bit masks for each colour/piece combination
+type Bitboard struct {
+	Bitmaps []uint64 // Bitmaps for each colour/piece combination
 	Symbols []string // Symbols representing each colour/piece combination
 	Ranks   int      // Number of rows
 	Files   int      // Number of columns
 }
 
-// PrettyPrint pretty-prints a BitBoard using the symbols for each colour/piece
-// combinaton. Empty squares are represented by periods.
-func (b *BitBoard) PrettyPrint() {
+// PrettyPrint pretty-prints a Bitboard using the symbols for each colour/piece
+// combination. Empty squares are represented by periods.
+func (b *Bitboard) PrettyPrint() {
 	for r := b.Ranks; r > 0; r-- {
 		for f := 0; f < b.Files; f++ {
 			p := (r-1)*b.Files + f
-			i := b.GetMaskIndex(p)
+			i := b.GetBitmapIndex(p)
 			if i != -1 {
 				fmt.Print(b.Symbols[i])
 			} else {
@@ -46,11 +46,11 @@ func (b *BitBoard) PrettyPrint() {
 	}
 }
 
-// GetMaskIndex returns the array index of the mask covering a particular
+// GetBitmapIndex returns the array index of the bitmap including a particular
 // square.
-func (b *BitBoard) GetMaskIndex(p int) int {
-	for i := 0; i < len(b.Masks); i++ {
-		if GetBit(&b.Masks[i], p) != 0 {
+func (b *Bitboard) GetBitmapIndex(p int) int {
+	for i := 0; i < len(b.Bitmaps); i++ {
+		if GetBit(&b.Bitmaps[i], p) != 0 {
 			return i
 		}
 	}
@@ -58,7 +58,7 @@ func (b *BitBoard) GetMaskIndex(p int) int {
 }
 
 // CoordsToBit converts rank and file coordinates to an integer bit position.
-func (b *BitBoard) CoordsToBit(file string, rank int) int {
+func (b *Bitboard) CoordsToBit(file string, rank int) int {
 	files := []string{"a", "b", "c", "d", "e", "f", "g", "h"}
 	var f int
 	for i, v := range files {
@@ -72,21 +72,21 @@ func (b *BitBoard) CoordsToBit(file string, rank int) int {
 
 // BitToSquareIndex converts an integer bit position to a square index (e.g.,
 // e4).
-func (b *BitBoard) BitToSquareIndex(p int) string {
+func (b *Bitboard) BitToSquareIndex(p int) string {
 	files := []string{"a", "b", "c", "d", "e", "f", "g", "h"}
 	r := p/b.Files + 1
 	f := p % b.Files
 	return fmt.Sprintf("%v%v", files[f], r)
 }
 
-// NewBitBoard constructs a new BitBoard.
-func NewBitBoard(pieces []uint64) *BitBoard {
-	return &BitBoard{}
+// NewBitboard constructs a new Bitboard.
+func NewBitboard() *Bitboard {
+	return &Bitboard{}
 }
 
 // NewChessBoard is a convenience function for constructing a new chess board.
-func NewChessBoard() *BitBoard {
-	masks := []uint64{
+func NewChessBoard() *Bitboard {
+	bitmaps := []uint64{
 		uint64(0x0000000000000081), // White Rooks
 		uint64(0x0000000000000042), // White Knights
 		uint64(0x0000000000000024), // White Bishops
@@ -104,64 +104,64 @@ func NewChessBoard() *BitBoard {
 		"R", "N", "B", "Q", "K", "P",
 		"r", "n", "b", "q", "k", "p",
 	}
-	return &BitBoard{masks, symbols, 8, 8}
+	return &Bitboard{bitmaps, symbols, 8, 8}
 }
 
 // NewCheckersBoard is a convenience function for constructing a new checkers
 // (English draughts) board.
-func NewCheckersBoard() *BitBoard {
-	masks := []uint64{
+func NewCheckersBoard() *Bitboard {
+	bitmaps := []uint64{
 		uint64(0xaa55aa0000000000), // Red
 		uint64(0x000000000055aa55), // White
 	}
 	symbols := []string{"R", "W"}
-	return &BitBoard{masks, symbols, 8, 8}
+	return &Bitboard{bitmaps, symbols, 8, 8}
 }
 
 // NewOthelloBoard is a convenience function for constructing a new Othello
 // board.
 //
 // Othello differs from Reversi only in starting position.
-func NewOthelloBoard() *BitBoard {
-	masks := []uint64{
+func NewOthelloBoard() *Bitboard {
+	bitmaps := []uint64{
 		uint64(0x0000001008000000), // Black
 		uint64(0x0000000810000000), // White
 	}
 	symbols := []string{"B", "W"}
-	return &BitBoard{masks, symbols, 8, 8}
+	return &Bitboard{bitmaps, symbols, 8, 8}
 }
 
 // NewReversiBoard is a convenience function for constructing a new Reversi
 // board.
-func NewReversiBoard() *BitBoard {
-	masks := []uint64{
+func NewReversiBoard() *Bitboard {
+	bitmaps := []uint64{
 		uint64(0x0000000000000000), // Black
 		uint64(0x0000000000000000), // White
 	}
 	symbols := []string{"B", "W"}
-	return &BitBoard{masks, symbols, 8, 8}
+	return &Bitboard{bitmaps, symbols, 8, 8}
 }
 
 // NewTicTacToeBoard is a convenience function for constructing a new
 // Tic-Tac-Toe board.
-func NewTicTacToeBoard() *BitBoard {
-	masks := []uint64{
+func NewTicTacToeBoard() *Bitboard {
+	bitmaps := []uint64{
 		uint64(0x0000000000000000), // X
 		uint64(0x0000000000000000), // O
 	}
 	symbols := []string{"X", "O"}
-	return &BitBoard{masks, symbols, 3, 3}
+	return &Bitboard{bitmaps, symbols, 3, 3}
 }
 
 // NewConnectFourBoard is a convenience function for constructing a new Connect
 // Four board.
-func NewConnectFourBoard() *BitBoard {
-	masks := []uint64{
+func NewConnectFourBoard() *Bitboard {
+	bitmaps := []uint64{
 		uint64(0x0000000000000000), // Red
 		uint64(0x0000000000000000), // Yellow
 	}
 	symbols := []string{"R", "Y"}
-	return &BitBoard{masks, symbols, 6, 7}
+	return &Bitboard{bitmaps, symbols, 6, 7}
 }
 
 // SetBit sets (sets to 1) the bit at position p.
