@@ -44,10 +44,11 @@ import (
 // Construct a new Bitboard using NewBitboard. There are also convenience
 // functions for constructing bitboards for specific games.
 type Bitboard struct {
-	Bitmaps []uint64 // Bitmaps for each colour/piece combination
-	Symbols []string // Symbols representing each colour/piece combination
-	Ranks   int      // Number of rows
-	Files   int      // Number of columns
+	Bitmaps  []uint64 // Bitmaps for each colour/piece combination
+	Symbols  []string // Symbols representing each colour/piece combination
+	Occupied uint64   // Union of all bitmaps (occupied squares)
+	Ranks    int      // Number of rows
+	Files    int      // Number of columns
 }
 
 // PrettyPrint pretty-prints a Bitboard using the symbols for each colour/piece
@@ -70,6 +71,11 @@ func (b *Bitboard) PrettyPrint() {
 // GetBitmapIndex returns the array index of the bitmap including a particular
 // square.
 func (b *Bitboard) GetBitmapIndex(p int) int {
+	// Check if the square is occupied first.
+	if util.GetBit(&b.Occupied, p) == 0 {
+		return -1
+	}
+	// Proceed to check all bitmaps.
 	for i := 0; i < len(b.Bitmaps); i++ {
 		if util.GetBit(&b.Bitmaps[i], p) != 0 {
 			return i
@@ -135,35 +141,39 @@ func (b *Bitboard) MovePieceCartesian(m int, x1 int, y1 int, x2 int, y2 int) {
 // Place the piece at algebraic coordinate p.
 func (b *Bitboard) PlacePieceAlgebraic(m int, p string) {
 	i := b.AlgebraicToBit(p)
-	util.SetBit(&b.Bitmaps[m], i)
+	b.PlacePieceBit(m, i)
 }
 
 // Place the piece at bit position p.
 func (b *Bitboard) PlacePieceBit(m int, p int) {
+	// Update the occupancy bitmap.
+	util.SetBit(&b.Occupied, p)
 	util.SetBit(&b.Bitmaps[m], p)
 }
 
 // Place the piece at Cartesian coordinates (x, y).
 func (b *Bitboard) PlacePieceCartesian(m int, x int, y int) {
 	p := b.CartesianToBit(x, y)
-	util.SetBit(&b.Bitmaps[m], p)
+	b.PlacePieceBit(m, p)
 }
 
 // Remove the piece at algebraic coordinate p.
 func (b *Bitboard) RemovePieceAlgebraic(m int, p string) {
 	i := b.AlgebraicToBit(p)
-	util.ClearBit(&b.Bitmaps[m], i)
+	b.RemovePieceBit(m, i)
 }
 
 // Remove the piece at bit position p.
 func (b *Bitboard) RemovePieceBit(m int, p int) {
+	// Update the occupancy bitmap.
+	util.ClearBit(&b.Occupied, p)
 	util.ClearBit(&b.Bitmaps[m], p)
 }
 
 // Remove the piece at Cartesian coordinates (x, y).
 func (b *Bitboard) RemovePieceCartesian(m int, x int, y int) {
 	p := b.CartesianToBit(x, y)
-	util.ClearBit(&b.Bitmaps[m], p)
+	b.RemovePieceBit(m, p)
 }
 
 // NewBitboard constructs a new Bitboard.
@@ -191,7 +201,8 @@ func NewChessBoard() *Bitboard {
 		"R", "N", "B", "Q", "K", "P",
 		"r", "n", "b", "q", "k", "p",
 	}
-	return &Bitboard{bitmaps, symbols, 8, 8}
+	occupied := util.Union(bitmaps)
+	return &Bitboard{bitmaps, symbols, occupied, 8, 8}
 }
 
 // NewCheckersBoard is a convenience function for constructing a new checkers
@@ -202,7 +213,8 @@ func NewCheckersBoard() *Bitboard {
 		uint64(0x000000000055aa55), // White
 	}
 	symbols := []string{"R", "W"}
-	return &Bitboard{bitmaps, symbols, 8, 8}
+	occupied := util.Union(bitmaps)
+	return &Bitboard{bitmaps, symbols, occupied, 8, 8}
 }
 
 // NewOthelloBoard is a convenience function for constructing a new Othello
@@ -215,7 +227,8 @@ func NewOthelloBoard() *Bitboard {
 		uint64(0x0000000810000000), // White
 	}
 	symbols := []string{"B", "W"}
-	return &Bitboard{bitmaps, symbols, 8, 8}
+	occupied := util.Union(bitmaps)
+	return &Bitboard{bitmaps, symbols, occupied, 8, 8}
 }
 
 // NewReversiBoard is a convenience function for constructing a new Reversi
@@ -226,7 +239,8 @@ func NewReversiBoard() *Bitboard {
 		uint64(0x0000000000000000), // White
 	}
 	symbols := []string{"B", "W"}
-	return &Bitboard{bitmaps, symbols, 8, 8}
+	occupied := util.Union(bitmaps)
+	return &Bitboard{bitmaps, symbols, occupied, 8, 8}
 }
 
 // NewTicTacToeBoard is a convenience function for constructing a new
@@ -237,7 +251,8 @@ func NewTicTacToeBoard() *Bitboard {
 		uint64(0x0000000000000000), // O
 	}
 	symbols := []string{"X", "O"}
-	return &Bitboard{bitmaps, symbols, 3, 3}
+	occupied := util.Union(bitmaps)
+	return &Bitboard{bitmaps, symbols, occupied, 3, 3}
 }
 
 // NewConnectFourBoard is a convenience function for constructing a new Connect
@@ -248,5 +263,6 @@ func NewConnectFourBoard() *Bitboard {
 		uint64(0x0000000000000000), // Yellow
 	}
 	symbols := []string{"R", "Y"}
-	return &Bitboard{bitmaps, symbols, 6, 7}
+	occupied := util.Union(bitmaps)
+	return &Bitboard{bitmaps, symbols, occupied, 6, 7}
 }

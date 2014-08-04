@@ -42,6 +42,15 @@ func IsBitSet(i uint64, p int) bool {
 	return (i & mask) != 0
 }
 
+// Calculate the union of an array of integers.
+func Union(i []uint64) uint64 {
+	var u uint64
+	for _, v := range i {
+		u = u | v
+	}
+	return u
+}
+
 // PopCount calculates the population count (Hamming weight) of an integer
 // using a divide-and-conquer approach.
 //
