@@ -6,7 +6,8 @@ import "fmt"
 
 // A BitBoard represents game state.
 //
-// We use a little-endian mapping of bits to rank-and-file coordinates:
+// We use a little-endian mapping of bits to rank-and-file coordinates. For
+// an 8x8 board, this mapping looks like:
 //
 //   8 | 56 57 58 59 60 61 62 63
 //   7 | 48 49 50 51 52 53 54 55
@@ -16,7 +17,7 @@ import "fmt"
 //   3 | 16 17 18 19 20 21 22 23
 //   2 | 8  9  10 11 12 13 14 15
 //   1 | 0  1  2  3  4  5  6  7
-// 		-------------------------
+//     -------------------------
 //       a  b  c  d  e  f  g  h
 //
 // Construct a new BitBoard using NewBitBoard(). There are also convenience
@@ -24,14 +25,16 @@ import "fmt"
 type BitBoard struct {
 	Masks   []uint64 // Bit masks for each colour/piece combination
 	Symbols []string // Symbols representing each colour/piece combination
+	Ranks   int      // Number of rows
+	Files   int      // Number of columns
 }
 
 // PrettyPrint() pretty-prints a BitBoard using the symbols for each
 // colour/piece combinaton. Empty squares are represented by periods.
 func (b *BitBoard) PrettyPrint() {
-	for r := 8; r > 0; r-- {
-		for f := 0; f < 8; f++ {
-			p := (r-1)*8 + f
+	for r := b.Ranks; r > 0; r-- {
+		for f := 0; f < b.Files; f++ {
+			p := (r-1)*b.Files + f
 			i := GetMaskIndex(b, p)
 			if i != -1 {
 				fmt.Print(b.Symbols[i])
@@ -68,7 +71,7 @@ func NewChessBoard() *BitBoard {
 		"R", "N", "B", "Q", "K", "P",
 		"r", "n", "b", "q", "k", "p",
 	}
-	return &BitBoard{masks, symbols}
+	return &BitBoard{masks, symbols, 8, 8}
 }
 
 // NewCheckersBoard is a convenience function for constructing a new checkers
@@ -79,7 +82,7 @@ func NewCheckersBoard() *BitBoard {
 		uint64(0x000000000055aa55), // White
 	}
 	symbols := []string{"R", "W"}
-	return &BitBoard{masks, symbols}
+	return &BitBoard{masks, symbols, 8, 8}
 }
 
 // NewOthelloBoard is a convenience function for constructing a new Othello
@@ -92,10 +95,10 @@ func NewOthelloBoard() *BitBoard {
 		uint64(0x0000000810000000), // White
 	}
 	symbols := []string{"B", "W"}
-	return &BitBoard{masks, symbols}
+	return &BitBoard{masks, symbols, 8, 8}
 }
 
-// NewReversiBoard() is a convenience function for construting a new Reversi
+// NewReversiBoard is a convenience function for constructing a new Reversi
 // board.
 func NewReversiBoard() *BitBoard {
 	masks := []uint64{
@@ -103,7 +106,29 @@ func NewReversiBoard() *BitBoard {
 		uint64(0x0000000000000000), // White
 	}
 	symbols := []string{"B", "W"}
-	return &BitBoard{masks, symbols}
+	return &BitBoard{masks, symbols, 8, 8}
+}
+
+// NewTicTacToeBoard is a convenience function for constructing a new
+// Tic-Tac-Toe board.
+func NewTicTacToeBoard() *BitBoard {
+	masks := []uint64{
+		uint64(0x0000000000000000), // X
+		uint64(0x0000000000000000), // O
+	}
+	symbols := []string{"X", "O"}
+	return &BitBoard{masks, symbols, 3, 3}
+}
+
+// NewConnectFourBoard is a convenience function for constructing a new Connect
+// Four board.
+func NewConnectFourBoard() *BitBoard {
+	masks := []uint64{
+		uint64(0x0000000000000000), // Red
+		uint64(0x0000000000000000), // Yellow
+	}
+	symbols := []string{"R", "Y"}
+	return &BitBoard{masks, symbols, 6, 7}
 }
 
 // GetMaskIndex returns the array index of the mask covering a particular
@@ -169,7 +194,7 @@ func PopCount(i uint64) int {
 }
 
 // CoordsToBit converts rank and file coordinates to an integer bit position.
-func CoordsToBit(file string, rank int) int {
+func CoordsToBit(b *BitBoard, file string, rank int) int {
 	files := []string{"a", "b", "c", "d", "e", "f", "g", "h"}
 	var f int
 	for i, v := range files {
@@ -177,15 +202,15 @@ func CoordsToBit(file string, rank int) int {
 			f = i
 		}
 	}
-	bit := (rank-1)*8 + f
+	bit := (rank-1)*b.Files + f
 	return bit
 }
 
 // BitToSquareIndex converts an integer bit position to a square index (e.g.,
 // e4).
-func BitToSquareIndex(p int) string {
+func BitToSquareIndex(b *BitBoard, p int) string {
 	files := []string{"a", "b", "c", "d", "e", "f", "g", "h"}
-	r := p/8 + 1
-	f := p % 8
+	r := p/b.Files + 1
+	f := p % b.Files
 	return fmt.Sprintf("%v%v", files[f], r)
 }
