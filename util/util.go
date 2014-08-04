@@ -1,4 +1,4 @@
-// Package util implements utility functions for the board64 library
+// Package util implements utility functions for the bitboard library.
 package util
 
 import (

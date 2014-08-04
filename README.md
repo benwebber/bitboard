@@ -1,4 +1,4 @@
-# board64
+# bitboard
 
 This library aims to implement a flexible system for storing state in games played on 8&times;8 grids. It does not implement game mechanics.
 
@@ -30,10 +30,10 @@ For more information on bitboards, check out the [Chess Programming Wiki](https:
 ```go
 package main
 
-import "github.com/benwebber/board64"
+import "github.com/benwebber/bitboard"
 
 func main() {
-	b := board64.NewChessBoard()
+	b := bitboard.NewChessBoard()
 	b.PrettyPrint()
 }
 ```

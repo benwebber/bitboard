@@ -1,11 +1,11 @@
-// Package board64 implements 8x8 bitboards for games like chess, checkers,
+// Package bitboard implements 8x8 bitboards for games like chess, checkers,
 // Reversi, and Othello.
-package board64
+package bitboard
 
 import (
 	"fmt"
 
-	"github.com/benwebber/board64/util"
+	"github.com/benwebber/bitboard/util"
 )
 
 // A Bitboard represents game state.
