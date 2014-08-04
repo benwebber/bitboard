@@ -2,23 +2,44 @@
 // Reversi, and Othello.
 package board64
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/benwebber/board64/util"
+)
 
 // A Bitboard represents game state.
 //
 // We use a little-endian mapping of bits to rank-and-file coordinates. For
 // an 8x8 board, this mapping looks like:
 //
-//   8 | 56 57 58 59 60 61 62 63
-//   7 | 48 49 50 51 52 53 54 55
-//   6 | 40 41 42 43 44 45 46 47
-//   5 | 32 33 34 35 36 37 38 39
-//   4 | 24 25 26 27 28 29 30 31
-//   3 | 16 17 18 19 20 21 22 23
-//   2 | 8  9  10 11 12 13 14 15
-//   1 | 0  1  2  3  4  5  6  7
-//     -------------------------
-//       a  b  c  d  e  f  g  h
+//  8 | 56 57 58 59 60 61 62 63
+//  7 | 48 49 50 51 52 53 54 55
+//  6 | 40 41 42 43 44 45 46 47
+//  5 | 32 33 34 35 36 37 38 39
+//  4 | 24 25 26 27 28 29 30 31
+//  3 | 16 17 18 19 20 21 22 23
+//  2 | 8  9  10 11 12 13 14 15
+//  1 | 0  1  2  3  4  5  6  7
+//    -------------------------
+//      a  b  c  d  e  f  g  h
+//
+// Coordinates
+//
+// We will define three sets of coordinates for interacting with the Bitboard:
+//
+//  * bit positions
+//  * alegraic notation
+//  * Cartesian (x, y) coordinates
+//
+// For example, the following positions are equivalent on an 8x8 board:
+//
+//  | Bit | Algebraic | Cartesian |
+//  |-----|-----------|-----------|
+//  | 0   | a1        | (0, 0)    |
+//  | 22  | g3        | (6, 2)    |
+//  | 28  | e4        | (4, 4)    |
+//  | 35  | d5        | (3, 4)    |
 //
 // Construct a new Bitboard using NewBitboard. There are also convenience
 // functions for constructing bitboards for specific games.
@@ -50,33 +71,61 @@ func (b *Bitboard) PrettyPrint() {
 // square.
 func (b *Bitboard) GetBitmapIndex(p int) int {
 	for i := 0; i < len(b.Bitmaps); i++ {
-		if GetBit(&b.Bitmaps[i], p) != 0 {
+		if util.GetBit(&b.Bitmaps[i], p) != 0 {
 			return i
 		}
 	}
 	return -1 // not found
 }
 
-// CoordsToBit converts rank and file coordinates to an integer bit position.
-func (b *Bitboard) CoordsToBit(file string, rank int) int {
-	files := []string{"a", "b", "c", "d", "e", "f", "g", "h"}
-	var f int
-	for i, v := range files {
-		if file == v {
-			f = i
-		}
-	}
-	bit := (rank-1)*b.Files + f
-	return bit
+// Convert coordinates in algebraic notation to an integer bit position.
+// Wrap util.AlgebraicToBit to automatically pass in number of files.
+func (b *Bitboard) AlgebraicToBit(p string) int {
+	return util.AlgebraicToBit(p, b.Files)
 }
 
-// BitToSquareIndex converts an integer bit position to a square index (e.g.,
-// e4).
-func (b *Bitboard) BitToSquareIndex(p int) string {
-	files := []string{"a", "b", "c", "d", "e", "f", "g", "h"}
-	r := p/b.Files + 1
-	f := p % b.Files
-	return fmt.Sprintf("%v%v", files[f], r)
+// Convert coordinates in algebraic notiton to Cartesian coordinates.
+// Wrap util.AlgebraicToCartesian to automatically pass in number of files.
+func (b *Bitboard) AlgebraicToCartesian(p string) (int, int) {
+	return util.AlgebraicToCartesian(p, b.Files)
+}
+
+// Convert an integer bit position to coordiantes in algebraic notation.
+// Wrap util.BitToAlgebraic to automatically pass in number of files.
+func (b *Bitboard) BitToAlgebraic(p int) string {
+	return util.BitToAlgebraic(p, b.Files)
+}
+
+// Convert an integer bit position to Cartesian coordinates.
+// Wrap util.BitToCartesian to automatically pass in number of files.
+func (b *Bitboard) BitToCartesian(p int) (int, int) {
+	return util.BitToCartesian(p, b.Files)
+}
+
+// Convert Cartesian coordinates to coordinates in algebraic notation.
+// Wrap util.CartesianToAlgebraic to automatically pass in number of files.
+func (b *Bitboard) CartesianToAlgebraic(x int, y int) string {
+	return util.CartesianToAlgebraic(x, y, b.Files)
+}
+
+// Convert Cartesian coordinates to an integer bit position.
+// Wrap util.CartesianToBit to automatically pass in number of files.
+func (b *Bitboard) CartesianToBit(x int, y int) int {
+	return util.CartesianToBit(x, y, b.Files)
+}
+
+// Move a piece from algebraic position p1 to p2.
+func (b *Bitboard) MovePieceAlgebraic(m int, p1 string, p2 string) {
+}
+
+// Move a piece from bit position p1 to p2.
+func (b *Bitboard) MovePieceBit(m int, p1 int, p2 int) {
+	util.ClearBit(&b.Bitmaps[m], p1)
+	util.SetBit(&b.Bitmaps[m], p2)
+}
+
+// Move a piece using Cartesian coordinates.
+func (b *Bitboard) MovePieceCartesian(m int, x1 int, y1 int, x2 int, y2 int) {
 }
 
 // NewBitboard constructs a new Bitboard.
@@ -162,55 +211,4 @@ func NewConnectFourBoard() *Bitboard {
 	}
 	symbols := []string{"R", "Y"}
 	return &Bitboard{bitmaps, symbols, 6, 7}
-}
-
-// SetBit sets (sets to 1) the bit at position p.
-func SetBit(i *uint64, p int) {
-	var mask uint64
-	mask = (1 << uint(p))
-	*i |= mask
-}
-
-// ClearBit clears (sets to 0) the bit at position p.
-func ClearBit(i *uint64, p int) {
-	var mask uint64
-	mask = ^(1 << uint(p))
-	*i &= mask
-}
-
-// ToggleBit toggles the value of the bit at position p.
-func ToggleBit(i *uint64, p int) {
-	var mask uint64
-	mask = (1 << uint(p))
-	*i ^= mask
-}
-
-// GetBit returns the value of the bit at position p.
-func GetBit(i *uint64, p int) int {
-	return int((*i >> uint(p)) & 1)
-}
-
-func IsBitSet(i uint64, p int) bool {
-	var mask uint64
-	mask = 1 << uint64(p)
-	return (i & mask) != 0
-}
-
-// PopCount calculates the population count (Hamming weight) of an integer
-// using a divide-and-conquer approach.
-//
-// See <http://en.wikipedia.org/wiki/Hamming_weight> for a complete description
-// of this implementation.
-func PopCount(i uint64) int {
-	var mask1, mask2, mask4 uint64
-	mask1 = 0x5555555555555555 // 0101...
-	mask2 = 0x3333333333333333 // 00110011..
-	mask4 = 0x0f0f0f0f0f0f0f0f // 00001111...
-	i -= (i >> 1) & mask1
-	i = (i & mask2) + ((i >> 2) & mask2)
-	i = (i + (i >> 4)) & mask4
-	i += i >> 8
-	i += i >> 16
-	i += i >> 32
-	return int(i & 0x7f)
 }
