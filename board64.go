@@ -116,16 +116,54 @@ func (b *Bitboard) CartesianToBit(x int, y int) int {
 
 // Move a piece from algebraic position p1 to p2.
 func (b *Bitboard) MovePieceAlgebraic(m int, p1 string, p2 string) {
+	b.RemovePieceAlgebraic(m, p1)
+	b.PlacePieceAlgebraic(m, p2)
 }
 
 // Move a piece from bit position p1 to p2.
 func (b *Bitboard) MovePieceBit(m int, p1 int, p2 int) {
-	util.ClearBit(&b.Bitmaps[m], p1)
-	util.SetBit(&b.Bitmaps[m], p2)
+	b.RemovePieceBit(m, p1)
+	b.PlacePieceBit(m, p2)
 }
 
 // Move a piece using Cartesian coordinates.
 func (b *Bitboard) MovePieceCartesian(m int, x1 int, y1 int, x2 int, y2 int) {
+	b.RemovePieceCartesian(m, x1, y1)
+	b.PlacePieceCartesian(m, x2, y2)
+}
+
+// Place the piece at algebraic coordinate p.
+func (b *Bitboard) PlacePieceAlgebraic(m int, p string) {
+	i := b.AlgebraicToBit(p)
+	util.SetBit(&b.Bitmaps[m], i)
+}
+
+// Place the piece at bit position p.
+func (b *Bitboard) PlacePieceBit(m int, p int) {
+	util.SetBit(&b.Bitmaps[m], p)
+}
+
+// Place the piece at Cartesian coordinates (x, y).
+func (b *Bitboard) PlacePieceCartesian(m int, x int, y int) {
+	p := b.CartesianToBit(x, y)
+	util.SetBit(&b.Bitmaps[m], p)
+}
+
+// Remove the piece at algebraic coordinate p.
+func (b *Bitboard) RemovePieceAlgebraic(m int, p string) {
+	i := b.AlgebraicToBit(p)
+	util.ClearBit(&b.Bitmaps[m], i)
+}
+
+// Remove the piece at bit position p.
+func (b *Bitboard) RemovePieceBit(m int, p int) {
+	util.ClearBit(&b.Bitmaps[m], p)
+}
+
+// Remove the piece at Cartesian coordinates (x, y).
+func (b *Bitboard) RemovePieceCartesian(m int, x int, y int) {
+	p := b.CartesianToBit(x, y)
+	util.ClearBit(&b.Bitmaps[m], p)
 }
 
 // NewBitboard constructs a new Bitboard.
