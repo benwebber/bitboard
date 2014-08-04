@@ -202,7 +202,13 @@ func NewChessBoard() *Bitboard {
 		"r", "n", "b", "q", "k", "p",
 	}
 	occupied := util.Union(bitmaps)
-	return &Bitboard{bitmaps, symbols, occupied, 8, 8}
+	return &Bitboard{
+		Bitmaps:  bitmaps,
+		Symbols:  symbols,
+		Occupied: occupied,
+		Ranks:    8,
+		Files:    8,
+	}
 }
 
 // NewCheckersBoard is a convenience function for constructing a new checkers
@@ -214,7 +220,13 @@ func NewCheckersBoard() *Bitboard {
 	}
 	symbols := []string{"R", "W"}
 	occupied := util.Union(bitmaps)
-	return &Bitboard{bitmaps, symbols, occupied, 8, 8}
+	return &Bitboard{
+		Bitmaps:  bitmaps,
+		Symbols:  symbols,
+		Occupied: occupied,
+		Ranks:    8,
+		Files:    8,
+	}
 }
 
 // NewOthelloBoard is a convenience function for constructing a new Othello
@@ -228,7 +240,13 @@ func NewOthelloBoard() *Bitboard {
 	}
 	symbols := []string{"B", "W"}
 	occupied := util.Union(bitmaps)
-	return &Bitboard{bitmaps, symbols, occupied, 8, 8}
+	return &Bitboard{
+		Bitmaps:  bitmaps,
+		Symbols:  symbols,
+		Occupied: occupied,
+		Ranks:    8,
+		Files:    8,
+	}
 }
 
 // NewReversiBoard is a convenience function for constructing a new Reversi
@@ -240,7 +258,13 @@ func NewReversiBoard() *Bitboard {
 	}
 	symbols := []string{"B", "W"}
 	occupied := util.Union(bitmaps)
-	return &Bitboard{bitmaps, symbols, occupied, 8, 8}
+	return &Bitboard{
+		Bitmaps:  bitmaps,
+		Symbols:  symbols,
+		Occupied: occupied,
+		Ranks:    8,
+		Files:    8,
+	}
 }
 
 // NewTicTacToeBoard is a convenience function for constructing a new
@@ -252,7 +276,13 @@ func NewTicTacToeBoard() *Bitboard {
 	}
 	symbols := []string{"X", "O"}
 	occupied := util.Union(bitmaps)
-	return &Bitboard{bitmaps, symbols, occupied, 3, 3}
+	return &Bitboard{
+		Bitmaps:  bitmaps,
+		Symbols:  symbols,
+		Occupied: occupied,
+		Ranks:    3,
+		Files:    3,
+	}
 }
 
 // NewConnectFourBoard is a convenience function for constructing a new Connect
@@ -264,5 +294,11 @@ func NewConnectFourBoard() *Bitboard {
 	}
 	symbols := []string{"R", "Y"}
 	occupied := util.Union(bitmaps)
-	return &Bitboard{bitmaps, symbols, occupied, 6, 7}
+	return &Bitboard{
+		Bitmaps:  bitmaps,
+		Symbols:  symbols,
+		Occupied: occupied,
+		Ranks:    6,
+		Files:    7,
+	}
 }
