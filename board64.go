@@ -29,13 +29,13 @@ type BitBoard struct {
 	Files   int      // Number of columns
 }
 
-// PrettyPrint() pretty-prints a BitBoard using the symbols for each
-// colour/piece combinaton. Empty squares are represented by periods.
+// PrettyPrint pretty-prints a BitBoard using the symbols for each colour/piece
+// combinaton. Empty squares are represented by periods.
 func (b *BitBoard) PrettyPrint() {
 	for r := b.Ranks; r > 0; r-- {
 		for f := 0; f < b.Files; f++ {
 			p := (r-1)*b.Files + f
-			i := GetMaskIndex(b, p)
+			i := b.GetMaskIndex(p)
 			if i != -1 {
 				fmt.Print(b.Symbols[i])
 			} else {
@@ -44,6 +44,39 @@ func (b *BitBoard) PrettyPrint() {
 		}
 		fmt.Println()
 	}
+}
+
+// GetMaskIndex returns the array index of the mask covering a particular
+// square.
+func (b *BitBoard) GetMaskIndex(p int) int {
+	for i := 0; i < len(b.Masks); i++ {
+		if GetBit(&b.Masks[i], p) != 0 {
+			return i
+		}
+	}
+	return -1 // not found
+}
+
+// CoordsToBit converts rank and file coordinates to an integer bit position.
+func (b *BitBoard) CoordsToBit(file string, rank int) int {
+	files := []string{"a", "b", "c", "d", "e", "f", "g", "h"}
+	var f int
+	for i, v := range files {
+		if file == v {
+			f = i
+		}
+	}
+	bit := (rank-1)*b.Files + f
+	return bit
+}
+
+// BitToSquareIndex converts an integer bit position to a square index (e.g.,
+// e4).
+func (b *BitBoard) BitToSquareIndex(p int) string {
+	files := []string{"a", "b", "c", "d", "e", "f", "g", "h"}
+	r := p/b.Files + 1
+	f := p % b.Files
+	return fmt.Sprintf("%v%v", files[f], r)
 }
 
 // NewBitBoard constructs a new BitBoard.
@@ -131,17 +164,6 @@ func NewConnectFourBoard() *BitBoard {
 	return &BitBoard{masks, symbols, 6, 7}
 }
 
-// GetMaskIndex returns the array index of the mask covering a particular
-// square.
-func GetMaskIndex(b *BitBoard, p int) int {
-	for i := 0; i < len(b.Masks); i++ {
-		if GetBit(&b.Masks[i], p) != 0 {
-			return i
-		}
-	}
-	return -1 // not found
-}
-
 // SetBit sets (sets to 1) the bit at position p.
 func SetBit(i *uint64, p int) {
 	var mask uint64
@@ -191,26 +213,4 @@ func PopCount(i uint64) int {
 	i += i >> 16
 	i += i >> 32
 	return int(i & 0x7f)
-}
-
-// CoordsToBit converts rank and file coordinates to an integer bit position.
-func CoordsToBit(b *BitBoard, file string, rank int) int {
-	files := []string{"a", "b", "c", "d", "e", "f", "g", "h"}
-	var f int
-	for i, v := range files {
-		if file == v {
-			f = i
-		}
-	}
-	bit := (rank-1)*b.Files + f
-	return bit
-}
-
-// BitToSquareIndex converts an integer bit position to a square index (e.g.,
-// e4).
-func BitToSquareIndex(b *BitBoard, p int) string {
-	files := []string{"a", "b", "c", "d", "e", "f", "g", "h"}
-	r := p/b.Files + 1
-	f := p % b.Files
-	return fmt.Sprintf("%v%v", files[f], r)
 }
