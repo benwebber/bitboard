@@ -176,9 +176,12 @@ func (b *Bitboard) RemovePieceCartesian(m int, x int, y int) {
 	b.RemovePieceBit(m, p)
 }
 
-// NewBitboard constructs a new Bitboard.
-func NewBitboard() *Bitboard {
-	return &Bitboard{}
+// New constructs a new 8x8 Bitboard.
+func New() *Bitboard {
+	return &Bitboard{
+		Ranks: 8,
+		Files: 8,
+	}
 }
 
 // NewChessBoard is a convenience function for constructing a new chess board.
