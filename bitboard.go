@@ -3,6 +3,7 @@
 package bitboard
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/benwebber/bitboard/util"
@@ -41,7 +42,7 @@ import (
 //  | 28  | e4        | (4, 4)    |
 //  | 35  | d5        | (3, 4)    |
 //
-// Construct a new Bitboard using NewBitboard. There are also convenience
+// Construct a new Bitboard using New. There are also convenience
 // functions for constructing bitboards for specific games.
 type Bitboard struct {
 	Bitmaps  []uint64 // Bitmaps for each colour/piece combination
@@ -176,12 +177,21 @@ func (b *Bitboard) RemovePieceCartesian(m int, x int, y int) {
 	b.RemovePieceBit(m, p)
 }
 
-// New constructs a new 8x8 Bitboard.
-func New() *Bitboard {
-	return &Bitboard{
-		Ranks: 8,
-		Files: 8,
+// New constructs a new Bitboard.
+func New(ranks int, files int) (b *Bitboard, err error) {
+	b = &Bitboard{}
+	if ranks < 0 {
+		err = errors.New("bitboard: number of ranks must be greater than zero")
 	}
+	if files < 0 {
+		err = errors.New("bitboard: number of files must be greater than zero")
+	}
+	if ranks*files > 64 {
+		err = errors.New("bitboard: bitboards cannot be larger than 64 squares")
+	}
+	b.Ranks = ranks
+	b.Files = files
+	return
 }
 
 // NewChessBoard is a convenience function for constructing a new chess board.
