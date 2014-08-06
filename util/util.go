@@ -42,8 +42,8 @@ func IsBitSet(i uint64, p int) bool {
 	return (i & mask) != 0
 }
 
-// Calculate the union of an array of integers.
-func Union(i []uint64) uint64 {
+// Calculate the union of integers.
+func Union(i ...uint64) uint64 {
 	var u uint64
 	for _, v := range i {
 		u = u | v

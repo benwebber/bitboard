@@ -214,7 +214,7 @@ func NewChessBoard() *Bitboard {
 		"R", "N", "B", "Q", "K", "P",
 		"r", "n", "b", "q", "k", "p",
 	}
-	occupied := util.Union(bitmaps)
+	occupied := util.Union(bitmaps...)
 	return &Bitboard{
 		Bitmaps:  bitmaps,
 		Symbols:  symbols,
@@ -232,7 +232,7 @@ func NewCheckersBoard() *Bitboard {
 		uint64(0x000000000055aa55), // White
 	}
 	symbols := []string{"R", "W"}
-	occupied := util.Union(bitmaps)
+	occupied := util.Union(bitmaps...)
 	return &Bitboard{
 		Bitmaps:  bitmaps,
 		Symbols:  symbols,
@@ -252,7 +252,7 @@ func NewOthelloBoard() *Bitboard {
 		uint64(0x0000000810000000), // White
 	}
 	symbols := []string{"B", "W"}
-	occupied := util.Union(bitmaps)
+	occupied := util.Union(bitmaps...)
 	return &Bitboard{
 		Bitmaps:  bitmaps,
 		Symbols:  symbols,
@@ -270,7 +270,7 @@ func NewReversiBoard() *Bitboard {
 		uint64(0x0000000000000000), // White
 	}
 	symbols := []string{"B", "W"}
-	occupied := util.Union(bitmaps)
+	occupied := util.Union(bitmaps...)
 	return &Bitboard{
 		Bitmaps:  bitmaps,
 		Symbols:  symbols,
@@ -288,7 +288,7 @@ func NewTicTacToeBoard() *Bitboard {
 		uint64(0x0000000000000000), // O
 	}
 	symbols := []string{"X", "O"}
-	occupied := util.Union(bitmaps)
+	occupied := util.Union(bitmaps...)
 	return &Bitboard{
 		Bitmaps:  bitmaps,
 		Symbols:  symbols,
@@ -306,7 +306,7 @@ func NewConnectFourBoard() *Bitboard {
 		uint64(0x0000000000000000), // Yellow
 	}
 	symbols := []string{"R", "Y"}
-	occupied := util.Union(bitmaps)
+	occupied := util.Union(bitmaps...)
 	return &Bitboard{
 		Bitmaps:  bitmaps,
 		Symbols:  symbols,
