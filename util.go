@@ -1,5 +1,5 @@
-// Package util implements utility functions for the bitboard library.
-package util
+// Utility functions for the bitboard library.
+package bitboard
 
 import (
 	"fmt"
@@ -74,7 +74,7 @@ func PopCount(i uint64) int {
 // Coordinate conversions
 //-----------------------------------------------------------------------------
 
-// Convert coordinates in algebraic notiton to Cartesian coordinates.
+// Convert coordinates in algebraic notation to Cartesian coordinates.
 func AlgebraicToCartesian(p string, files int) (int, int) {
 	symbols := []string{"a", "b", "c", "d", "e", "f", "g", "h"}
 	var x int

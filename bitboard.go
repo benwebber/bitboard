@@ -5,8 +5,6 @@ package bitboard
 import (
 	"errors"
 	"fmt"
-
-	"github.com/benwebber/bitboard/util"
 )
 
 // A Bitboard represents game state.
@@ -73,12 +71,12 @@ func (b *Bitboard) PrettyPrint() {
 // square.
 func (b *Bitboard) GetBitmapIndex(p int) int {
 	// Check if the square is occupied first.
-	if util.GetBit(&b.Occupied, p) == 0 {
+	if GetBit(&b.Occupied, p) == 0 {
 		return -1
 	}
 	// Proceed to check all bitmaps.
 	for i := 0; i < len(b.Bitmaps); i++ {
-		if util.GetBit(&b.Bitmaps[i], p) != 0 {
+		if GetBit(&b.Bitmaps[i], p) != 0 {
 			return i
 		}
 	}
@@ -86,39 +84,39 @@ func (b *Bitboard) GetBitmapIndex(p int) int {
 }
 
 // Convert coordinates in algebraic notation to an integer bit position.
-// Wrap util.AlgebraicToBit to automatically pass in number of files.
+// Wrap AlgebraicToBit to automatically pass in number of files.
 func (b *Bitboard) AlgebraicToBit(p string) int {
-	return util.AlgebraicToBit(p, b.Files)
+	return AlgebraicToBit(p, b.Files)
 }
 
 // Convert coordinates in algebraic notiton to Cartesian coordinates.
-// Wrap util.AlgebraicToCartesian to automatically pass in number of files.
+// Wrap AlgebraicToCartesian to automatically pass in number of files.
 func (b *Bitboard) AlgebraicToCartesian(p string) (int, int) {
-	return util.AlgebraicToCartesian(p, b.Files)
+	return AlgebraicToCartesian(p, b.Files)
 }
 
 // Convert an integer bit position to coordiantes in algebraic notation.
-// Wrap util.BitToAlgebraic to automatically pass in number of files.
+// Wrap BitToAlgebraic to automatically pass in number of files.
 func (b *Bitboard) BitToAlgebraic(p int) string {
-	return util.BitToAlgebraic(p, b.Files)
+	return BitToAlgebraic(p, b.Files)
 }
 
 // Convert an integer bit position to Cartesian coordinates.
-// Wrap util.BitToCartesian to automatically pass in number of files.
+// Wrap BitToCartesian to automatically pass in number of files.
 func (b *Bitboard) BitToCartesian(p int) (int, int) {
-	return util.BitToCartesian(p, b.Files)
+	return BitToCartesian(p, b.Files)
 }
 
 // Convert Cartesian coordinates to coordinates in algebraic notation.
-// Wrap util.CartesianToAlgebraic to automatically pass in number of files.
+// Wrap CartesianToAlgebraic to automatically pass in number of files.
 func (b *Bitboard) CartesianToAlgebraic(x int, y int) string {
-	return util.CartesianToAlgebraic(x, y, b.Files)
+	return CartesianToAlgebraic(x, y, b.Files)
 }
 
 // Convert Cartesian coordinates to an integer bit position.
-// Wrap util.CartesianToBit to automatically pass in number of files.
+// Wrap CartesianToBit to automatically pass in number of files.
 func (b *Bitboard) CartesianToBit(x int, y int) int {
-	return util.CartesianToBit(x, y, b.Files)
+	return CartesianToBit(x, y, b.Files)
 }
 
 // Move a piece from algebraic position p1 to p2.
@@ -148,8 +146,8 @@ func (b *Bitboard) PlacePieceAlgebraic(m int, p string) {
 // Place the piece at bit position p.
 func (b *Bitboard) PlacePieceBit(m int, p int) {
 	// Update the occupancy bitmap.
-	util.SetBit(&b.Occupied, p)
-	util.SetBit(&b.Bitmaps[m], p)
+	SetBit(&b.Occupied, p)
+	SetBit(&b.Bitmaps[m], p)
 }
 
 // Place the piece at Cartesian coordinates (x, y).
@@ -167,8 +165,8 @@ func (b *Bitboard) RemovePieceAlgebraic(m int, p string) {
 // Remove the piece at bit position p.
 func (b *Bitboard) RemovePieceBit(m int, p int) {
 	// Update the occupancy bitmap.
-	util.ClearBit(&b.Occupied, p)
-	util.ClearBit(&b.Bitmaps[m], p)
+	ClearBit(&b.Occupied, p)
+	ClearBit(&b.Bitmaps[m], p)
 }
 
 // Remove the piece at Cartesian coordinates (x, y).
@@ -214,7 +212,7 @@ func NewChessBoard() *Bitboard {
 		"R", "N", "B", "Q", "K", "P",
 		"r", "n", "b", "q", "k", "p",
 	}
-	occupied := util.Union(bitmaps...)
+	occupied := Union(bitmaps...)
 	return &Bitboard{
 		Bitmaps:  bitmaps,
 		Symbols:  symbols,
@@ -232,7 +230,7 @@ func NewCheckersBoard() *Bitboard {
 		uint64(0x000000000055aa55), // White
 	}
 	symbols := []string{"R", "W"}
-	occupied := util.Union(bitmaps...)
+	occupied := Union(bitmaps...)
 	return &Bitboard{
 		Bitmaps:  bitmaps,
 		Symbols:  symbols,
@@ -252,7 +250,7 @@ func NewOthelloBoard() *Bitboard {
 		uint64(0x0000000810000000), // White
 	}
 	symbols := []string{"B", "W"}
-	occupied := util.Union(bitmaps...)
+	occupied := Union(bitmaps...)
 	return &Bitboard{
 		Bitmaps:  bitmaps,
 		Symbols:  symbols,
@@ -270,7 +268,7 @@ func NewReversiBoard() *Bitboard {
 		uint64(0x0000000000000000), // White
 	}
 	symbols := []string{"B", "W"}
-	occupied := util.Union(bitmaps...)
+	occupied := Union(bitmaps...)
 	return &Bitboard{
 		Bitmaps:  bitmaps,
 		Symbols:  symbols,
@@ -288,7 +286,7 @@ func NewTicTacToeBoard() *Bitboard {
 		uint64(0x0000000000000000), // O
 	}
 	symbols := []string{"X", "O"}
-	occupied := util.Union(bitmaps...)
+	occupied := Union(bitmaps...)
 	return &Bitboard{
 		Bitmaps:  bitmaps,
 		Symbols:  symbols,
@@ -306,7 +304,7 @@ func NewConnectFourBoard() *Bitboard {
 		uint64(0x0000000000000000), // Yellow
 	}
 	symbols := []string{"R", "Y"}
-	occupied := util.Union(bitmaps...)
+	occupied := Union(bitmaps...)
 	return &Bitboard{
 		Bitmaps:  bitmaps,
 		Symbols:  symbols,
