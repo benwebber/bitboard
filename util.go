@@ -71,6 +71,78 @@ func PopCount(i uint64) int {
 }
 
 //-----------------------------------------------------------------------------
+// Flipping and rotating
+//-----------------------------------------------------------------------------
+
+// These are Go ports of the functions given on the Chess Programming wiki:
+// <https://chessprogramming.wikispaces.com/Flipping+Mirroring+and+Rotating>.
+
+// Flip a bitboard vertically about the centre ranks.
+func FlipVertical(i uint64) uint64 {
+	k1 := uint64(0x00FF00FF00FF00FF)
+	k2 := uint64(0x0000FFFF0000FFFF)
+	i = ((i >> 8) & k1) | ((i & k1) << 8)
+	i = ((i >> 16) & k2) | ((i & k2) << 16)
+	i = (i >> 32) | (i << 32)
+	return i
+}
+
+// Flip a bitboard horizontally about the centre files.
+func FlipHorizontal(i uint64) uint64 {
+	k1 := uint64(0x5555555555555555)
+	k2 := uint64(0x3333333333333333)
+	k4 := uint64(0x0f0f0f0f0f0f0f0f)
+	i = ((i >> 1) & k1) + 2*(i&k1)
+	i = ((i >> 2) & k2) + 4*(i&k2)
+	i = ((i >> 4) & k4) + 16*(i&k4)
+	return i
+}
+
+// Flip a bitboard about the diagonal A1-H8.
+func FlipDiagonalA1H8(i uint64) uint64 {
+	var t uint64
+	k1 := uint64(0x5500550055005500)
+	k2 := uint64(0x3333000033330000)
+	k4 := uint64(0x0f0f0f0f00000000)
+	t = k4 & (i ^ (i << 28))
+	i ^= t ^ (t >> 28)
+	t = k2 & (i ^ (i << 14))
+	i ^= t ^ (t >> 14)
+	t = k1 & (i ^ (i << 7))
+	i ^= t ^ (t >> 7)
+	return i
+}
+
+func FlipDiagonalA8H1(i uint64) uint64 {
+	var t uint64
+	k1 := uint64(0xaa00aa00aa00aa00)
+	k2 := uint64(0xcccc0000cccc0000)
+	k4 := uint64(0xf0f0f0f00f0f0f0f)
+	t = i ^ (i << 36)
+	i ^= k4 & (t ^ (i >> 36))
+	t = k2 & (i ^ (i << 18))
+	i ^= t ^ (t >> 18)
+	t = k1 & (i ^ (i << 9))
+	i ^= t ^ (t >> 9)
+	return i
+}
+
+// Rotate a bitboard by 180 degrees.
+func Rotate180(i uint64) uint64 {
+	return FlipHorizontal(FlipVertical(i))
+}
+
+// Rotate a bitboard by 90 degrees (clockwise).
+func Rotate90(i uint64) uint64 {
+	return FlipVertical(FlipDiagonalA1H8(i))
+}
+
+// Rotate a bitboard by 270 degrees (90 degrees counter-clockwise).
+func Rotate270(i uint64) uint64 {
+	return FlipDiagonalA1H8(FlipVertical(i))
+}
+
+//-----------------------------------------------------------------------------
 // Coordinate conversions
 //-----------------------------------------------------------------------------
 
